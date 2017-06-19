@@ -21,10 +21,11 @@
 <input type="text" name="txtFrom" id="txtFrom" placeholder="起始">
 <input type="text" name="txtEnd" id="txtEnd" placeholder="目的">
 <button type="button" onclick="search()">查詢</button>
+<button type="button" onclick="canvas()">截圖</button>
 
 <div id="googlemap"></div>
 
-
+<script type="text/javascript" src="../assets/js/html2canvas.js"></script>
 <script src="//maps.googleapis.com/maps/api/js?sensor=false" async defer></script>
 <!--<script src="//maps.googleapis.com/maps/api/js?key={your_key}&callback=initialize" async defer></script>-->
 
@@ -110,7 +111,7 @@
                         map: map,
                         position: latLng,
                         tittle: 'Envato',
-                        icon: '../assets/mark.png'
+                        icon: '../assets/img/mark.png'
                     });
                 }
             } else {
@@ -137,6 +138,23 @@
             }
         });
     }
+
+
+    /**
+     * 截圖功能
+     */
+    function canvas(){
+        html2canvas($("#googlemap"), {
+            useCORS: true,
+            onrendered: function(canvas) {
+                window.open(canvas.toDataURL("image/png"));
+
+            }
+        });
+        return false;
+    }
+
+
 
 </script>
 
