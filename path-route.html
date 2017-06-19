@@ -59,7 +59,7 @@
         } else if (address.length == 1) {
             //單一景點顯示
             initialize();
-            addressSetLatLng(start_site);
+            addressSetLatLng(address[0]);
 
         }else{
             alert('請輸入地址或景點');
@@ -83,8 +83,7 @@
         directionsDisplay = new google.maps.DirectionsRenderer({
             'map': map,
             'preserveViewport': true,
-            'draggable': true,
-            'icon': '<?php echo $url;?>images/logo_s.png'
+            'draggable': true
         });
     }
 
@@ -111,7 +110,7 @@
                         map: map,
                         position: latLng,
                         tittle: 'Envato',
-                        icon: '<?=$url;?>images/mark.png'
+                        icon: '../assets/mark.png'
                     });
                 }
             } else {
