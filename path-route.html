@@ -48,24 +48,33 @@
         var end_site = document.getElementById("txtEnd").value;    //結束目標
         var address = [];
         if (start_site.length > 0) {
-            if(start_site == your_location) start_site = pos
-            address.push(start_site);
+            if(start_site == your_location){
+                address.push(pos);
+            }else{
+                address.push(start_site);
+            }
         }
         if (end_site.length > 0) {
-            if(end_site == your_location) end_site = pos
-            address.push(end_site);
+            if(end_site == your_location){
+                address.push(pos);
+            }else{
+                address.push(end_site);
+            }
         }
 
+        //-----------------------------------------------
         if (address.length == 2) {
             //導航路徑模式
             initialize();
-            pathRoute(start_site, end_site);
-            addressSetLatLng(start_site, false); //重設位置
+            pathRoute(address[0], address[1]);
+            addressSetLatLng(address[0], false); //重設位置
 
         } else if (address.length == 1) {
             //單一景點顯示
             initialize();
-            addressSetLatLng(address[0]);
+            if(start_site != your_location){
+                addressSetLatLng(address[0]);
+            }
 
         } else {
             alert('請輸入地址或景點');
@@ -73,6 +82,7 @@
     }
 
 
+    
     /**
      * 初始化Google地圖
      */
@@ -84,9 +94,18 @@
             mapTypeId: google.maps.MapTypeId.ROADMAP,
         }
 
+        map = new google.maps.Map(document.getElementById("googlemap"), myOptions);
+        directionsService = new google.maps.DirectionsService();
+        directionsDisplay = new google.maps.DirectionsRenderer({
+            'map': map,
+            'preserveViewport': true,
+            'draggable': true
+        });
+
+
         var infoWindow = new google.maps.InfoWindow({map: map});
 
-        if(document.getElementById("txtFrom").value == '你的位置'){
+        if(document.getElementById("txtFrom").value == your_location){
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     pos = {
@@ -107,14 +126,6 @@
             }
         }
 
-
-        map = new google.maps.Map(document.getElementById("googlemap"), myOptions);
-        directionsService = new google.maps.DirectionsService();
-        directionsDisplay = new google.maps.DirectionsRenderer({
-            'map': map,
-            'preserveViewport': true,
-            'draggable': true
-        });
     }
 
     
@@ -141,7 +152,7 @@
                         map: map,
                         position: latLng,
                         tittle: 'Envato',
-                        icon: '<?=$url;?>images/mark.png'
+                        icon: '../assets/img/mark.png'
                     });
                 }
             } else {
