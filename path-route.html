@@ -30,11 +30,14 @@
 <!--<script src="//maps.googleapis.com/maps/api/js?key={your_key}&callback=initialize" async defer></script>-->
 
 <script type="text/javascript">
-    var directionsDisplay;
-    var directionsService;
-    var map;
+    var directionsDisplay,
+        directionsService,
+        map,
+        pos,
+        your_location = '你的位置';
 
-
+    document.getElementById("txtFrom").value = your_location;
+    
     /**
      * 判定執行方法
      * 只有輸入一個點，則使用顯示的方式顯示一個位置，
@@ -44,25 +47,27 @@
         var start_site = document.getElementById("txtFrom").value; //起始目標
         var end_site = document.getElementById("txtEnd").value;    //結束目標
         var address = [];
-        if(start_site.length > 0){
+        if (start_site.length > 0) {
+            if(start_site == your_location) start_site = pos
             address.push(start_site);
         }
-        if(end_site.length > 0){
+        if (end_site.length > 0) {
+            if(end_site == your_location) end_site = pos
             address.push(end_site);
         }
 
-        if(address.length == 2){
+        if (address.length == 2) {
             //導航路徑模式
             initialize();
-            pathRoute(start_site,end_site);
-            addressSetLatLng(start_site,false); //重設位置
+            pathRoute(start_site, end_site);
+            addressSetLatLng(start_site, false); //重設位置
 
         } else if (address.length == 1) {
             //單一景點顯示
             initialize();
             addressSetLatLng(address[0]);
 
-        }else{
+        } else {
             alert('請輸入地址或景點');
         }
     }
@@ -75,9 +80,33 @@
         console.log('initialize');
         var myOptions = {
             zoom: 13,
-            center: new google.maps.LatLng(24.1514649,120.63839170000006),
+            center: new google.maps.LatLng(24.1514649, 120.63839170000006),
             mapTypeId: google.maps.MapTypeId.ROADMAP,
         }
+
+        var infoWindow = new google.maps.InfoWindow({map: map});
+
+        if(document.getElementById("txtFrom").value == '你的位置'){
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    infoWindow.setPosition(pos);
+                    infoWindow.setContent(your_location);
+                    document.getElementById("txtFrom").value = your_location;
+                    map.setCenter(pos);
+                }, function () {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                });
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
+        }
+
 
         map = new google.maps.Map(document.getElementById("googlemap"), myOptions);
         directionsService = new google.maps.DirectionsService();
@@ -88,17 +117,18 @@
         });
     }
 
+    
 
     /**
      * 地址關鍵字設定座標位置
      * @param address 關鍵字地址
      * @param show_iscon 是否顯示 icon
      */
-    function addressSetLatLng(address,show_icon = true) {
-        var geocoder= new google.maps.Geocoder();
-        geocoder.geocode( { 'address': address}, function(results, status) {
+    function addressSetLatLng(address, show_icon = true) {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({'address': address}, function (results, status) {
 
-            console.log(results,status);
+            console.log(results, status);
 
             if (status == google.maps.GeocoderStatus.OK) {
 
@@ -106,19 +136,25 @@
                 map.setCenter(latLng);
 
                 //自訂座標圖示
-                if(show_icon){
+                if (show_icon) {
                     var marker = new google.maps.Marker({
                         map: map,
                         position: latLng,
                         tittle: 'Envato',
-                        icon: '../assets/img/mark.png'
+                        icon: '<?=$url;?>images/mark.png'
                     });
                 }
             } else {
-                alert(status);
+                if(status == 'ZERO_RESULTS'){
+                    alert(`訊息提示 : 找不到您所輸入的位置`);
+                }else{
+                    alert(`訊息提示 : ${status}`);
+                }
             }
         });
     }
+    
+    
 
     /**
      * 設定導航路徑
@@ -127,8 +163,8 @@
      */
     function pathRoute(start_site,end_site) {
         var request = {
-            origin:start_site,		//起始地
-            destination:end_site,	//目的地
+            origin:start_site,		//起始地(Google座標或是地址都可以)
+            destination:end_site,	//目的地(Google座標或是地址都可以)
             travelMode: google.maps.DirectionsTravelMode.DRIVING //旅行工具 WALKING | DRIVING
         };
 
@@ -138,7 +174,21 @@
             }
         });
     }
+    
+    
+    
+    
+    /**
+     * 錯誤提示
+     */
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+            '提示: 地理位置服務失敗.' :
+            '提示: 您的瀏覽器不支援地理位置服務.');
+    }
 
+    
 
     /**
      * 截圖功能
