@@ -132,37 +132,39 @@
 
     /**
      * 地址關鍵字設定座標位置
-     * @param address 關鍵字地址
+     * @param address 關鍵字地址(不可為座標)
      * @param show_iscon 是否顯示 icon
      */
     function addressSetLatLng(address, show_icon = true) {
         var geocoder = new google.maps.Geocoder();
-        geocoder.geocode({'address': address}, function (results, status) {
+        if(typeof(address) == 'string'){
+            geocoder.geocode({'address': address}, function (results, status) {
 
-            console.log(results, status);
+                console.log(results, status);
 
-            if (status == google.maps.GeocoderStatus.OK) {
+                if (status == google.maps.GeocoderStatus.OK) {
 
-                var latLng = results[0].geometry.location;
-                map.setCenter(latLng);
+                    var latLng = results[0].geometry.location;
+                    map.setCenter(latLng);
 
-                //自訂座標圖示
-                if (show_icon) {
-                    var marker = new google.maps.Marker({
-                        map: map,
-                        position: latLng,
-                        tittle: 'Envato',
-                        icon: '../assets/img/mark.png'
-                    });
+                    //自訂座標圖示
+                    if (show_icon) {
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: latLng,
+                            tittle: 'Envato',
+                            icon: '../assets/img/mark.png'
+                        });
+                    }
+                } else {
+                    if(status == 'ZERO_RESULTS'){
+                        alert(`訊息提示 : 找不到您所輸入的位置`);
+                    }else{
+                        alert(`訊息提示 : ${status}`);
+                    }
                 }
-            } else {
-                if(status == 'ZERO_RESULTS'){
-                    alert(`訊息提示 : 找不到您所輸入的位置`);
-                }else{
-                    alert(`訊息提示 : ${status}`);
-                }
-            }
-        });
+            });
+        }
     }
     
     
